@@ -22,6 +22,9 @@ def create_app(test_config=None):
     from . import products
     app.register_blueprint(products.bp)
 
+    from . import db
+    db.init_app(app)
+
     @app.route("/")
     def home():
         return redirect(url_for("products.products_page"))
