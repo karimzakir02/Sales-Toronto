@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
 import os
 
 
@@ -19,8 +19,10 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    from . import products
+    app.register_blueprint(products.bp)
+
     @app.route("/")
     def home():
-        return "<p>Hello! This is my upcoming data engineering project!</p>"
-
+        return redirect(url_for("products.products_page"))
     return app
