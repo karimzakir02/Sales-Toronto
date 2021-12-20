@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint,
+    Blueprint, render_template
 )
 
 bp = Blueprint("products", __name__, url_prefix="/products")
@@ -7,4 +7,4 @@ bp = Blueprint("products", __name__, url_prefix="/products")
 
 @bp.route("/")
 def products_page():
-    return "<p>Hello! This is my upcoming data engineering project!</p>"
+    return render_template("products/products.html")
