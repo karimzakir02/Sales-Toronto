@@ -25,6 +25,9 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)
 
+    from . import scraper_facade
+    scraper_facade.init_app(app)
+
     @app.route("/")
     def home():
         return redirect(url_for("products.products_page"))
