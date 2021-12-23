@@ -3,7 +3,7 @@ from seleniumwire import webdriver
 import time
 from seleniumwire.utils import decode
 import json
-from url_enums import StoreURLs
+from .url_enum import StoreURLs
 
 
 class Scraper(ABC):
@@ -49,7 +49,7 @@ class LoblawsScraper(Scraper):
         processed_data = self.process_items(items)
         return processed_data
 
-    def process_items(items):
+    def process_items(self, items):
         tuples = []
         for item in items:
             tup = (item["name"], "Loblaws", item["prices"]["price"]["value"],
