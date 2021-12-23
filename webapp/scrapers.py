@@ -46,4 +46,14 @@ class LoblawsScraper(Scraper):
                 json_body = json.loads(body.decode("utf-8"))
                 items.extend(json_body["results"])
 
-        return items
+        processed_data = self.process_items(items)
+        return processed_data
+
+    def process_items(items):
+        tuples = []
+        for item in items:
+            tup = (item["name"], "Loblaws", item["prices"]["price"]["value"],
+                   item["prices"]["wasPrice"]["value"],
+                   int(item["stockStatus"] == "OK"), item["packageSize"])
+            tuples.append(tup)
+        return tuples
