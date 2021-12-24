@@ -4,6 +4,7 @@ import time
 from seleniumwire.utils import decode
 import json
 from .url_enum import StoreURLs
+from datetime import date
 
 
 class Scraper(ABC):
@@ -51,9 +52,11 @@ class LoblawsScraper(Scraper):
 
     def process_items(self, items):
         tuples = []
+        today = date.today()
         for item in items:
             tup = (item["name"], "Loblaws", item["prices"]["price"]["value"],
                    item["prices"]["wasPrice"]["value"],
-                   int(item["stockStatus"] == "OK"), item["packageSize"])
+                   int(item["stockStatus"] == "OK"), item["packageSize"],
+                   today.year, today.month, today.day)
             tuples.append(tup)
         return tuples
