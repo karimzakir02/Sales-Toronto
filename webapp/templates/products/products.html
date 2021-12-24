@@ -1,5 +1,12 @@
-<!doctype html>
-
+{% extends 'base.html' %}
 <title>Products Page</title>
 
 <p>Welcome to my upcoming data engineering project! This a template for the home page</p>
+
+{% block content %}
+
+  {% for item in items %}
+    <p>{{ item['name'] }}</p>
+  {% endfor %}
+
+{% endblock %}
