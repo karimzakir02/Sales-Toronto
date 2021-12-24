@@ -7,5 +7,8 @@ CREATE TABLE products (
   current_price REAL NOT NULL,
   old_price REAL NOT NULL,
   in_stock INTEGER,
-  package_size TEXT
+  package_size TEXT,
+  year INT,
+  month INT,
+  day INT
 );
