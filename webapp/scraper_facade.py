@@ -19,9 +19,9 @@ def get_items_facade():
     driver = webdriver.Chrome(options=options)
 
     items = []
-    loblaws_scraper = scrapers.LoblawsScraper()
+    loblaws_scraper = scrapers.LoblawsScraper(driver)
 
-    items.extend(loblaws_scraper.get_products(driver))
+    items.extend(loblaws_scraper.get_products())
 
     db = get_db()
     for item in items:

@@ -43,17 +43,17 @@ class LoblawsScraper(Scraper):
             processed_data.append(tup)
         return processed_data
 
-    def _scroll_down(self, driver):
+    def _scroll_down(self):
         # Scroll down to the bottom of the page to load all offers
         get_height_command = "return document.body.scrollHeight"
-        last_height = driver.execute_script(get_height_command)
+        last_height = self.driver.execute_script(get_height_command)
         new_height = -1
         while last_height != new_height:
             last_height = new_height
             scroll_down = "window.scrollTo(0, document.body.scrollHeight);"
-            driver.execute_script(scroll_down)
+            self.driver.execute_script(scroll_down)
             time.sleep(1)
-            new_height = driver.execute_script(get_height_command)
+            new_height = self.driver.execute_script(get_height_command)
 
     def _get_required_responses(self):
         # Only decode and return responses that came from their deals POST API
