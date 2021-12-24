@@ -4,9 +4,18 @@ from seleniumwire.utils import decode
 import json
 from .url_enum import StoreURLs
 from datetime import date
+from seleniumwire import webdriver
 
 
 class Scraper(ABC):
+
+    def __init__(self):
+        # Each scraper will have its own webdriver to allow for easier
+        # asynchronous scraping in the future
+        options = webdriver.ChromeOptions()
+        options.add_argument("headless")
+        options.add_argument("window-size=1400,2000")
+        self.driver = webdriver.Chrome(options=options)
 
     @abstractmethod
     def get_products(self):
@@ -15,10 +24,10 @@ class Scraper(ABC):
 
 class LoblawsScraper(Scraper):
 
-    def __init__(self, driver):
+    def __init__(self):
+        super().__init__()
         self.LOBLAWS_POST_URL = ("https://api.pcexpress.ca/"
                                  "product-facade/v3/products/deals")
-        self.driver = driver
 
     def get_products(self):
         self.driver.get(StoreURLs.LOBLAWS)
@@ -28,6 +37,8 @@ class LoblawsScraper(Scraper):
 
         items = self._get_required_responses()
         processed_data = self._process_items(items)
+
+        self.driver.quit()
 
         return processed_data
 
