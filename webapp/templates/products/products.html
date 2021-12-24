@@ -4,9 +4,21 @@
 <p>Welcome to my upcoming data engineering project! This a template for the home page</p>
 
 {% block content %}
-
-  {% for item in items %}
-    <p>{{ item['name'] }}</p>
-  {% endfor %}
+  <div class="row" style="padding: 3rem">
+    {% for item in items %}
+      <div class="col-3" style="padding-bottom: 2rem">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title text-truncate" style="padding: 1px">{{ item['name'] }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{ item['original_store'] }}</h6>
+            <p class="card-text">Current Price: {{ item['current_price'] }} CAD</p>
+            <p class="card-text">Old Price: {{ item['old_price'] }} CAD</p>
+            <p class="card-text">{{ item['in_stock'] }}</p>
+            <p class="card-text">Package Size: {{ item['package_size'] }}</p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
 
 {% endblock %}
