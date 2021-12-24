@@ -2,6 +2,7 @@ from . import scrapers
 from webapp.db import get_db
 from flask.cli import with_appcontext
 import click
+from seleniumwire import webdriver
 
 
 @click.command("scrape-data")
@@ -12,10 +13,15 @@ def get_items_command():
 
 
 def get_items_facade():
+    options = webdriver.ChromeOptions()
+    options.add_argument("headless")
+    options.add_argument("window-size=1400,2000")
+    driver = webdriver.Chrome(options=options)
+
     items = []
     loblaws_scraper = scrapers.LoblawsScraper()
 
-    items.extend(loblaws_scraper.get_products())
+    items.extend(loblaws_scraper.get_products(driver))
 
     db = get_db()
     for item in items:
