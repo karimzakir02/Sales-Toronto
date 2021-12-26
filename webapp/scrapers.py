@@ -3,7 +3,7 @@ import time
 from seleniumwire.utils import decode
 import json
 from .url_enum import StoreURLs
-from datetime import date
+from datetime import date, datetime
 from seleniumwire import webdriver
 
 
@@ -45,12 +45,15 @@ class LoblawsScraper(Scraper):
     def _process_items(self, items):
         # Prepare data to be added to the database
         processed_data = []
-        today = date.today()
         for item in items:
+            link = "https://www.loblaws.ca" + item["link"]
+            expiry_date_txt = item["badges"]["dealBadge"]["expiryDate"]
+            expiry_date = datetime.strptime(expiry_date_txt[:10], "%Y-%m-%d")
+            expiry_date_str = expiry_date.strftime("%Y%m%d")
             tup = (item["name"], "Loblaws", item["prices"]["price"]["value"],
-                   item["prices"]["wasPrice"]["value"],
-                   int(item["stockStatus"] == "OK"), item["packageSize"],
-                   today.year, today.month, today.day)
+                   item["prices"]["wasPrice"]["value"], link,
+                   item["packageSize"], date.today().strftime("%Y%m%d"),
+                   expiry_date_str)
             processed_data.append(tup)
         return processed_data
 
