@@ -3,8 +3,10 @@ import time
 from seleniumwire.utils import decode
 import json
 from .url_enum import StoreURLs
-from datetime import date
+from datetime import date, datetime
 from seleniumwire import webdriver
+import requests
+from bs4 import BeautifulSoup
 
 
 class Scraper(ABC):
@@ -22,12 +24,74 @@ class Scraper(ABC):
         raise NotImplementedError
 
 
+class MetroScraper(Scraper):
+
+    def __init__(self):
+        super().__init__()
+        self.METRO_API_URL = ("https://ecirculaire.metro.ca/"
+                              "flyer_data/4561334?locale=en")
+        self.METRO_OLD_PRICE_URL = ("https://www.metro.ca/en/flyer/"
+                                    "getSelectedFlyerPromosDetails")
+
+    def get_products(self):
+        self.driver.get(StoreURLs.METRO)
+        time.sleep(5)
+
+        items = self._get_required_responses()
+
+        processed_items = self._process_items(items)
+
+        return processed_items
+
+    def _process_items(self, items):
+        processed_data = []
+
+        for item in items:
+            tup = (item["name"], "Metro", item["current_price"],
+                   self._get_old_price(item), item["valid_to"], "",
+                   item["description"])
+
+            processed_data.append(tup)
+        return processed_data
+
+    def _get_old_price(self, item):
+        valid_from = datetime.strptime(item["valid_from"], "%Y-%m-%d")
+        valid_to = datetime.strptime(item["valid_to"], "%Y-%m-%d")
+
+        json_params = {
+            "from": valid_from.strftime("%Y%m%dT000000"),
+            "to": valid_to.strftime("%Y%m%dT000000"),
+            "blockId": item["sku"],
+            "itemId": item["fkyer_item_id"],
+            "flyer_run_id": item["flyer_run_id"],
+        }
+
+        response = requests.post(self.METRO_OLD_PRICE_URL, json_params)
+        soup = BeautifulSoup(response.text, features="lxml")
+        price_div = soup.find(attrs={"class": "pi-regular-price"})
+        # Maybe change the above so that you can use the find method?
+        price_txt = price_div.find(attrs={"class": "pi-price"}).text
+        return float(price_txt[1:])
+
+    def _get_required_responses(self):
+        items = []
+        for request in self.driver.requests:
+            if request.url == self.METRO_API_URL:
+                response = request.response
+                body = decode(response.body,
+                              response.headers.get("Content-Encoding",
+                                                   "identity"))
+                json_body = json.loads(body.decode("utf-8"))
+                items.extend(json_body)
+        return items
+
+
 class LoblawsScraper(Scraper):
 
     def __init__(self):
         super().__init__()
-        self.LOBLAWS_POST_URL = ("https://api.pcexpress.ca/"
-                                 "product-facade/v3/products/deals")
+        self.LOBLAWS_API_URL = ("https://api.pcexpress.ca/"
+                                "product-facade/v3/products/deals")
 
     def get_products(self):
         self.driver.get(StoreURLs.LOBLAWS)
@@ -70,7 +134,7 @@ class LoblawsScraper(Scraper):
         # Only decode and return responses that came from their deals POST API
         items = []
         for request in self.driver.requests:
-            if request.url == self.LOBLAWS_POST_URL:
+            if request.url == self.LOBLAWS_API_URL:
                 response = request.response
                 body = decode(response.body,
                               response.headers.get("Content-Encoding",
