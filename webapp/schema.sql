@@ -9,5 +9,5 @@ CREATE TABLE products (
   link TEXT,
   package_size TEXT,
   date_started TEXT,
-  date_ended TEXT,
+  date_ended TEXT
 );
