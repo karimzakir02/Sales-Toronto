@@ -48,8 +48,8 @@ class MetroScraper(Scraper):
 
         for item in items:
             tup = (item["name"], "Metro", item["current_price"],
-                   self._get_old_price(item), item["valid_to"], "",
-                   item["description"])
+                   self._get_old_price(item), "", item["valid_from"],
+                   item["valid_to"], item["description"])
 
             processed_data.append(tup)
         return processed_data
@@ -62,14 +62,15 @@ class MetroScraper(Scraper):
             "from": valid_from.strftime("%Y%m%dT000000"),
             "to": valid_to.strftime("%Y%m%dT000000"),
             "blockId": item["sku"],
-            "itemId": item["fkyer_item_id"],
+            "itemId": item["flyer_item_id"],
             "flyer_run_id": item["flyer_run_id"],
         }
 
         response = requests.post(self.METRO_OLD_PRICE_URL, json_params)
-        soup = BeautifulSoup(response.text, features="lxml")
+        soup = BeautifulSoup(response.text, features="html.parser")
+        if response.status_code != 200:
+            return 0
         price_div = soup.find(attrs={"class": "pi-regular-price"})
-        # Maybe change the above so that you can use the find method?
         price_txt = price_div.find(attrs={"class": "pi-price"}).text
         return float(price_txt[1:])
 
@@ -82,7 +83,7 @@ class MetroScraper(Scraper):
                               response.headers.get("Content-Encoding",
                                                    "identity"))
                 json_body = json.loads(body.decode("utf-8"))
-                items.extend(json_body)
+                items.extend(json_body["items"])
         return items
 
 
