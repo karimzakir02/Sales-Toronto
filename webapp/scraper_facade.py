@@ -23,8 +23,8 @@ def get_items_facade():
     for item in items:
         db.execute(
             ("INSERT INTO products(name, original_store, current_price,"
-             "old_price, in_stock, package_size, year, month, day)"
-             "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"),
+             "old_price, link, package_size, date_started, date_ended)"
+             "VALUES(?, ?, ?, ?, ?, ?, ?, ?)"),
             item
         )
     db.commit()
