@@ -7,6 +7,8 @@ from datetime import date, datetime
 from seleniumwire import webdriver
 import requests
 from bs4 import BeautifulSoup
+from selenium.webdriver.common.by import By
+
 
 
 class Scraper(ABC):
@@ -28,31 +30,52 @@ class MetroScraper(Scraper):
 
     def __init__(self):
         super().__init__()
-        self.METRO_API_URL = ("https://ecirculaire.metro.ca/"
-                              "flyer_data/4561334?locale=en")
+        self.METRO_API_URL = "ecirculaire.metro.ca/flyer_data/"
         self.METRO_OLD_PRICE_URL = ("https://www.metro.ca/en/flyer/"
                                     "getSelectedFlyerPromosDetails")
 
     def get_products(self):
         self.driver.get(StoreURLs.METRO)
         time.sleep(5)
+        self._get_to_window()
+        self.driver.save_screenshot("metro_screenshot.png")
 
         items = self._get_required_responses()
 
         processed_items = self._process_items(items)
 
+        self.driver.quit()
+
         return processed_items
+
+    def _get_to_window(self):
+        frame = self.driver.find_element(By.ID, "flipp-iframe")
+        self.driver.switch_to.frame(frame)
+        button_xpath = ('//*[@id="other_flyer_runs"]/div/div/div/div[2]/'
+                        'table/tbody/tr[1]')
+        button = self.driver.find_element(By.XPATH, button_xpath)
+        button.click()
+        time.sleep(1)
 
     def _process_items(self, items):
         processed_data = []
-
+        count = 0
         for item in items:
+            print(count)
+            if not self._item_valid(item):
+                continue
             tup = (item["name"], "Metro", item["current_price"],
-                   self._get_old_price(item), "", item["valid_from"],
-                   item["valid_to"], item["description"])
+                   self._get_old_price(item), "", item["description"],
+                   item["valid_from"], item["valid_to"])
 
             processed_data.append(tup)
+            count += 1
         return processed_data
+
+    def _item_valid(self, item):
+        if item["current_price"] is None:
+            return False
+        return True
 
     def _get_old_price(self, item):
         valid_from = datetime.strptime(item["valid_from"], "%Y-%m-%d")
@@ -63,25 +86,37 @@ class MetroScraper(Scraper):
             "to": valid_to.strftime("%Y%m%dT000000"),
             "blockId": item["sku"],
             "itemId": item["flyer_item_id"],
-            "flyer_run_id": item["flyer_run_id"],
+            "flyerRunId": item["flyer_run_id"]
         }
 
-        response = requests.post(self.METRO_OLD_PRICE_URL, json_params)
-        soup = BeautifulSoup(response.text, features="html.parser")
+        response = requests.post(self.METRO_OLD_PRICE_URL, json=json_params)
         if response.status_code != 200:
             return 0
+        else:
+            old_price = self._find_old_price(response.text)
+            # TODO: sometimes old price is smaller than current price.
+            # Refer to the notes to check how to fix this.
+            return old_price
+
+    def _find_old_price(self, text_response):
+        soup = BeautifulSoup(text_response, features="html.parser")
         price_div = soup.find(attrs={"class": "pi-regular-price"})
+
+        if price_div is None:
+            return 0
+
         price_txt = price_div.find(attrs={"class": "pi-price"}).text
         return float(price_txt[1:])
 
     def _get_required_responses(self):
         items = []
         for request in self.driver.requests:
-            if request.url == self.METRO_API_URL:
+            if self.METRO_API_URL in request.url:
                 response = request.response
                 body = decode(response.body,
                               response.headers.get("Content-Encoding",
                                                    "identity"))
+                print(body)
                 json_body = json.loads(body.decode("utf-8"))
                 items.extend(json_body["items"])
         return items
