@@ -6,9 +6,8 @@ from .url_enum import StoreURLs
 from datetime import date, datetime
 from seleniumwire import webdriver
 import requests
+import bs4
 from bs4 import BeautifulSoup
-from selenium.webdriver.common.by import By
-
 
 
 class Scraper(ABC):
@@ -33,12 +32,11 @@ class MetroScraper(Scraper):
         self.METRO_API_URL = "ecirculaire.metro.ca/flyer_data/"
         self.METRO_OLD_PRICE_URL = ("https://www.metro.ca/en/flyer/"
                                     "getSelectedFlyerPromosDetails")
+        self.LINK = "https://www.metro.ca/en/flyer"
 
     def get_products(self):
         self.driver.get(StoreURLs.METRO)
         time.sleep(5)
-        self._get_to_window()
-        self.driver.save_screenshot("metro_screenshot.png")
 
         items = self._get_required_responses()
 
@@ -48,31 +46,21 @@ class MetroScraper(Scraper):
 
         return processed_items
 
-    def _get_to_window(self):
-        frame = self.driver.find_element(By.ID, "flipp-iframe")
-        self.driver.switch_to.frame(frame)
-        button_xpath = ('//*[@id="other_flyer_runs"]/div/div/div/div[2]/'
-                        'table/tbody/tr[1]')
-        button = self.driver.find_element(By.XPATH, button_xpath)
-        button.click()
-        time.sleep(1)
-
     def _process_items(self, items):
         processed_data = []
-        count = 0
         for item in items:
-            print(count)
             if not self._item_valid(item):
                 continue
+            old_price = self._get_old_price(item)
             tup = (item["name"], "Metro", item["current_price"],
-                   self._get_old_price(item), "", item["description"],
+                   old_price, self.LINK, item["description"],
                    item["valid_from"], item["valid_to"])
 
             processed_data.append(tup)
-            count += 1
         return processed_data
 
     def _item_valid(self, item):
+        # Some items are recipes, which don't have a price tag
         if item["current_price"] is None:
             return False
         return True
@@ -93,20 +81,51 @@ class MetroScraper(Scraper):
         if response.status_code != 200:
             return 0
         else:
-            old_price = self._find_old_price(response.text)
-            # TODO: sometimes old price is smaller than current price.
-            # Refer to the notes to check how to fix this.
+            old_price = self._find_old_price(item, response.text)
             return old_price
 
-    def _find_old_price(self, text_response):
+    def _find_old_price(self, item, text_response):
         soup = BeautifulSoup(text_response, features="html.parser")
-        price_div = soup.find(attrs={"class": "pi-regular-price"})
+        regular_price_div = soup.find(attrs={"class": "pi-regular-price"})
 
-        if price_div is None:
+        if regular_price_div is None:
             return 0
 
-        price_txt = price_div.find(attrs={"class": "pi-price"}).text
-        return float(price_txt[1:])
+        price_txt = regular_price_div.find(attrs={"class": "pi-price"})
+        if price_txt is None:
+            return 0
+        else:
+            price = self._adjust_sale_price(soup)
+            item["current_price"] = price if price else item["current_price"]
+            return float(price_txt.text[1:])
+
+    def _adjust_sale_price(self, soup):
+        # Sometimes, the old price is provided in different units than the
+        # sale price, so this function searches for the appropriate sale price
+        units = ["Kilogram", "Each", "Pound"]
+        regular_price_div = soup.find(attrs={"class": "pi-regular-price"})
+        old_price_unit_tag = regular_price_div.find(attrs={"class": "pi-unit"})
+
+        for node in old_price_unit_tag:
+            if type(node) == bs4.element.Tag and node.attrs["title"] in units:
+                required_unit = node.attrs["title"]
+
+        sale_price_div = soup.find(attrs={"class": "pi-sale-price"})
+        sale_unit = sale_price_div.find(attrs={"class":
+                                               "pi-unit pi-price-promo"})
+        if sale_unit and \
+                sale_unit.find(attrs={"title": required_unit}) is not None:
+            price = sale_price_div.find(attrs={"class": "pi-price"})
+            return float(price.text[1:])
+
+        secondary_price = soup.find(attrs={"class": "pi-secondary-price"})
+        prices = secondary_price.find_all(attrs={"class": "pi-price"})
+        for price in prices:
+            if price.find(attrs={"title": required_unit}) is not None:
+                price_string = price.contents[0]
+                return float(price_string[1: len(price_string) - 1])
+
+        return 0
 
     def _get_required_responses(self):
         items = []
@@ -116,7 +135,6 @@ class MetroScraper(Scraper):
                 body = decode(response.body,
                               response.headers.get("Content-Encoding",
                                                    "identity"))
-                print(body)
                 json_body = json.loads(body.decode("utf-8"))
                 items.extend(json_body["items"])
         return items
