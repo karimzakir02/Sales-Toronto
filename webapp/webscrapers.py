@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from .data_retriever_interface import DataRetrieverInterface
 import time
 from seleniumwire.utils import decode
 import json
@@ -10,7 +10,7 @@ import bs4
 from bs4 import BeautifulSoup
 
 
-class Scraper(ABC):
+class WebScraper(DataRetrieverInterface):
 
     def __init__(self):
         # Each scraper will have its own webdriver to allow for easier
@@ -20,12 +20,8 @@ class Scraper(ABC):
         options.add_argument("window-size=1400,2000")
         self.driver = webdriver.Chrome(options=options)
 
-    @abstractmethod
-    def get_products(self):
-        raise NotImplementedError
 
-
-class MetroScraper(Scraper):
+class MetroScraper(WebScraper):
 
     def __init__(self):
         super().__init__()
@@ -140,7 +136,7 @@ class MetroScraper(Scraper):
         return items
 
 
-class LoblawsScraper(Scraper):
+class LoblawsScraper(WebScraper):
 
     def __init__(self):
         super().__init__()
