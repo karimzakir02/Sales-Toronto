@@ -86,7 +86,7 @@ class MetroScraper(WebScraper):
 
     def __init__(self):
         super().__init__()
-        self.METRO_API_URL = "ecirculaire.metro.ca/flyer_data/"
+        self.METRO_API_URL = "dam.flippenterprise.net/flyerkit/publication"
         self.METRO_OLD_PRICE_URL = ("https://www.metro.ca/en/flyer/"
                                     "getSelectedFlyerPromosDetails")
         self.LINK = "https://www.metro.ca/en/flyer"
@@ -94,10 +94,12 @@ class MetroScraper(WebScraper):
     def get_products(self):
         self.driver.get(StoreURLs.METRO)
         time.sleep(5)
-
+        print("starting")
         items = self._get_required_responses()
+        print("got items")
 
         processed_items = self._process_items(items)
+        print("processed items")
 
         self.driver.quit()
 
@@ -118,7 +120,7 @@ class MetroScraper(WebScraper):
 
     def _item_valid(self, item):
         # Some items are recipes, which don't have a price tag
-        if item["current_price"] is None:
+        if item.get("current_price") is None:
             return False
         return True
 
@@ -130,7 +132,7 @@ class MetroScraper(WebScraper):
             "from": valid_from.strftime("%Y%m%dT000000"),
             "to": valid_to.strftime("%Y%m%dT000000"),
             "blockId": item["sku"],
-            "itemId": item["flyer_item_id"],
+            "itemId": item["id"],
             "flyerRunId": item["flyer_run_id"]
         }
 
@@ -189,13 +191,13 @@ class MetroScraper(WebScraper):
         for request in self.driver.requests:
             if self.METRO_API_URL in request.url:
                 response = request.response
-                if response in None:
+                if response is None:
                     continue
                 body = decode(response.body,
                               response.headers.get("Content-Encoding",
                                                    "identity"))
                 json_body = json.loads(body.decode("utf-8"))
-                items.extend(json_body["items"])
+                items.extend(json_body)
         return items
 
 
