@@ -1,4 +1,4 @@
-from . import scraper_builder
+from . import builders
 from webapp.db import get_db
 from flask.cli import with_appcontext
 import click
@@ -14,7 +14,7 @@ def get_items_command():
 def get_items_facade():
 
     items = []
-    scrapers = scraper_builder.build_scrapers()
+    scrapers = builders.WebScraperBuilder.build_retrievers()
 
     for scraper in scrapers:
         items.extend(scraper.get_products())
