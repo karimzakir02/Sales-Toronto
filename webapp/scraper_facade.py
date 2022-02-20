@@ -2,6 +2,7 @@ from . import builders
 from webapp.db import get_db
 from flask.cli import with_appcontext
 import click
+import webapp
 
 
 @click.command("scrape-data")
@@ -23,18 +24,15 @@ def _commit_to_db(items):
     db.commit()
 
 
-def get_items_facade(app=None):
+def get_items_facade():
 
     items = []
     scrapers = builders.WebScraperBuilder.build_retrievers()
 
-    for scraper in scrapers:
-        items.extend(scraper.get_products())
+    # for scraper in scrapers:
+    #     items.extend(scraper.get_products())
 
-    if app:
-        with app.app_context():
-            _commit_to_db(items)
-    else:
+    with webapp.app.app_context():
         _commit_to_db(items)
 
 
