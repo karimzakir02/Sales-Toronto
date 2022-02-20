@@ -11,14 +11,7 @@ def get_items_command():
     click.echo("Sucessfully retrieved the sales items for today")
 
 
-def get_items_facade():
-
-    items = []
-    scrapers = builders.WebScraperBuilder.build_retrievers()
-
-    for scraper in scrapers:
-        items.extend(scraper.get_products())
-
+def _commit_to_db(items):
     db = get_db()
     for item in items:
         db.execute(
@@ -28,6 +21,21 @@ def get_items_facade():
             item
         )
     db.commit()
+
+
+def get_items_facade(app=None):
+
+    items = []
+    scrapers = builders.WebScraperBuilder.build_retrievers()
+
+    for scraper in scrapers:
+        items.extend(scraper.get_products())
+
+    if app:
+        with app.app_context():
+            _commit_to_db(items)
+    else:
+        _commit_to_db(items)
 
 
 def init_app(app):
