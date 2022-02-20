@@ -29,8 +29,8 @@ def get_items_facade():
     items = []
     scrapers = builders.WebScraperBuilder.build_retrievers()
 
-    # for scraper in scrapers:
-    #     items.extend(scraper.get_products())
+    for scraper in scrapers:
+        items.extend(scraper.get_products())
 
     with webapp.app.app_context():
         _commit_to_db(items)
