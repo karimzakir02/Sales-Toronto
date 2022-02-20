@@ -94,12 +94,9 @@ class MetroScraper(WebScraper):
     def get_products(self):
         self.driver.get(StoreURLs.METRO)
         time.sleep(5)
-        print("starting")
         items = self._get_required_responses()
-        print("got items")
 
         processed_items = self._process_items(items)
-        print("processed items")
 
         self.driver.quit()
 
