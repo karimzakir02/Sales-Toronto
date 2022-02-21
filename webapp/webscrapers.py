@@ -59,12 +59,20 @@ class FreshcoScraper(WebScraper):
                 continue
             if item["original_price"] is None:
                 self._adjust_old_price(item)
+
+            self._modify_dates(item)
             link = "https://freshco.com/flyer/"
             tup = (item["name"], "FreshCo", item["current_price"],
                    item["original_price"], link, "NaN", item["valid_from"],
                    item["valid_to"])
             processed_data.append(tup)
         return processed_data
+
+    def _modify_dates(self, item):
+        valid_from = datetime.strptime(item["valid_from"], "%Y-%m-%d")
+        item["valid_from"] = valid_from.strftime("%Y%m%d")
+        valid_to = datetime.strptime(item["valid_to"], "%Y-%m-%d")
+        item["valid_to"] = valid_to.strftime("%Y%m%d")
 
     def _get_required_responses(self):
         items = []
@@ -107,6 +115,8 @@ class MetroScraper(WebScraper):
         for item in items:
             if not self._item_valid(item):
                 continue
+
+            self._modify_dates(item)
             old_price = self._get_old_price(item)
             tup = (item["name"], "Metro", item["current_price"],
                    old_price, self.LINK, item["description"],
@@ -115,6 +125,12 @@ class MetroScraper(WebScraper):
             processed_data.append(tup)
         return processed_data
 
+    def _modify_dates(self, item):
+        valid_from = datetime.strptime(item["valid_from"], "%Y-%m-%d")
+        item["valid_from"] = valid_from.strftime("%Y%m%d")
+        valid_to = datetime.strptime(item["valid_to"], "%Y-%m-%d")
+        item["valid_to"] = valid_to.strftime("%Y%m%d")
+
     def _item_valid(self, item):
         # Some items are recipes, which don't have a price tag
         if item.get("current_price") is None:
@@ -122,8 +138,8 @@ class MetroScraper(WebScraper):
         return True
 
     def _get_old_price(self, item):
-        valid_from = datetime.strptime(item["valid_from"], "%Y-%m-%d")
-        valid_to = datetime.strptime(item["valid_to"], "%Y-%m-%d")
+        valid_from = datetime.strptime(item["valid_from"], "%Y%m%d")
+        valid_to = datetime.strptime(item["valid_to"], "%Y%m%d")
 
         json_params = {
             "from": valid_from.strftime("%Y%m%dT000000"),
