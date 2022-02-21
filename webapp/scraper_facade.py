@@ -12,15 +12,28 @@ def get_items_command():
     click.echo("Sucessfully retrieved the sales items for today")
 
 
+def _duplicate_item(db, item):
+    name = item[0]
+    store = item[1]
+    date_ended = item[7]
+    query = (f'SELECT * FROM products WHERE name = "{name}" '
+             f'AND original_store = "{store}" '
+             f'AND date_ended = "{date_ended}";')
+    duplicate_items = db.execute(query).fetchall()
+
+    return len(duplicate_items) > 0
+
+
 def _commit_to_db(items):
     db = get_db()
     for item in items:
-        db.execute(
-            ("INSERT INTO products(name, original_store, current_price,"
-             "old_price, link, package_size, date_started, date_ended)"
-             "VALUES(?, ?, ?, ?, ?, ?, ?, ?)"),
-            item
-        )
+        if not _duplicate_item(db, item):
+            db.execute(
+                ("INSERT INTO products(name, original_store, current_price,"
+                 "old_price, link, package_size, date_started, date_ended)"
+                 "VALUES(?, ?, ?, ?, ?, ?, ?, ?)"),
+                item
+            )
     db.commit()
 
 
