@@ -13,13 +13,17 @@ def get_items_command():
 
 
 def _duplicate_item(db, item):
-    name = item[0]
-    store = item[1]
-    date_ended = item[7]
-    query = (f'SELECT * FROM products WHERE name = "{name}" '
-             f'AND original_store = "{store}" '
-             f'AND date_ended = "{date_ended}";')
-    duplicate_items = db.execute(query).fetchall()
+    criteria = [item[0], item[1], item[7]]
+    # name = item[0]
+    # store = item[1]
+    # date_ended = item[7]
+    query = ('SELECT * FROM products WHERE name = ?'
+             'AND original_store = ?'
+             'AND date_ended = ?;')
+    try:
+        duplicate_items = db.execute(query, criteria).fetchall()
+    except Exception:
+        print(query)
 
     return len(duplicate_items) > 0
 
