@@ -2,6 +2,7 @@ from flask import (
     Blueprint, render_template, flash
 )
 from webapp.db import get_db
+from datetime import datetime
 
 bp = Blueprint("products", __name__, url_prefix="/products")
 
@@ -10,9 +11,9 @@ bp = Blueprint("products", __name__, url_prefix="/products")
 def products_page():
     db = get_db()
     error = None
-
+    today = datetime.today().strftime("%Y%m%d")
     items = db.execute(
-        "SELECT * FROM products").fetchall()
+        f"SELECT * FROM products WHERE date_ended >= {today}").fetchall()
 
     if error is not None:
         flash(error)
