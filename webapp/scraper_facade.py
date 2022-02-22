@@ -14,9 +14,6 @@ def get_items_command():
 
 def _duplicate_item(db, item):
     criteria = [item[0], item[1], item[7]]
-    # name = item[0]
-    # store = item[1]
-    # date_ended = item[7]
     query = ('SELECT * FROM products WHERE name = ?'
              'AND original_store = ?'
              'AND date_ended = ?;')
