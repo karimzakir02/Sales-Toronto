@@ -17,10 +17,8 @@ def _duplicate_item(db, item):
     query = ('SELECT * FROM products WHERE name = ?'
              'AND original_store = ?'
              'AND date_ended = ?;')
-    try:
-        duplicate_items = db.execute(query, criteria).fetchall()
-    except Exception:
-        print(query)
+
+    duplicate_items = db.execute(query, criteria).fetchall()
 
     return len(duplicate_items) > 0
 
