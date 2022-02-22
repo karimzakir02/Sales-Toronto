@@ -26,6 +26,7 @@ class FreshcoScraper(WebScraper):
     def __init__(self):
         super().__init__()
         self.FRESH_API_URL = "https://dam.flippenterprise.net"
+        self.store_name = "FreshCo"
 
     def get_products(self):
         self.driver.get(StoreURLs.FRESHCO)
@@ -62,7 +63,7 @@ class FreshcoScraper(WebScraper):
 
             self._modify_dates(item)
             link = "https://freshco.com/flyer/"
-            tup = (item["name"], "FreshCo", item["current_price"],
+            tup = (item["name"], self.store_name, item["current_price"],
                    item["original_price"], link, "NaN", item["valid_from"],
                    item["valid_to"])
             processed_data.append(tup)
@@ -98,6 +99,7 @@ class MetroScraper(WebScraper):
         self.METRO_OLD_PRICE_URL = ("https://www.metro.ca/en/flyer/"
                                     "getSelectedFlyerPromosDetails")
         self.LINK = "https://www.metro.ca/en/flyer"
+        self.store_name = "Metro"
 
     def get_products(self):
         self.driver.get(StoreURLs.METRO)
@@ -118,7 +120,7 @@ class MetroScraper(WebScraper):
 
             self._modify_dates(item)
             old_price = self._get_old_price(item)
-            tup = (item["name"], "Metro", item["current_price"],
+            tup = (item["name"], self.store_name, item["current_price"],
                    old_price, self.LINK, item["description"],
                    item["valid_from"], item["valid_to"])
 
@@ -226,6 +228,7 @@ class LoblawsScraper(WebScraper):
         super().__init__()
         self.LOBLAWS_API_URL = ("https://api.pcexpress.ca/"
                                 "product-facade/v3/products/deals")
+        self.store_name = "Loblaws"
 
     def get_products(self):
         self.driver.get(StoreURLs.LOBLAWS)
@@ -248,7 +251,8 @@ class LoblawsScraper(WebScraper):
             expiry_date_txt = item["badges"]["dealBadge"]["expiryDate"]
             expiry_date = datetime.strptime(expiry_date_txt[:10], "%Y-%m-%d")
             expiry_date_str = expiry_date.strftime("%Y%m%d")
-            tup = (item["name"], "Loblaws", item["prices"]["price"]["value"],
+            tup = (item["name"], self.store_name,
+                   item["prices"]["price"]["value"],
                    item["prices"]["wasPrice"]["value"], link,
                    item["packageSize"], date.today().strftime("%Y%m%d"),
                    expiry_date_str)
