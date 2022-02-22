@@ -3,7 +3,7 @@ import time
 from seleniumwire.utils import decode
 import json
 from .url_enum import StoreURLs
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from seleniumwire import webdriver
 import requests
 import bs4
@@ -140,10 +140,11 @@ class MetroScraper(WebScraper):
     def _get_old_price(self, item):
         valid_from = datetime.strptime(item["valid_from"], "%Y%m%d")
         valid_to = datetime.strptime(item["valid_to"], "%Y%m%d")
+        valid_to = valid_to + timedelta(days=1)
 
         json_params = {
-            "from": valid_from.strftime("%Y%m%dT000000"),
-            "to": valid_to.strftime("%Y%m%dT000000"),
+            "from": valid_from.strftime("%Y-%m-%dT05:00:00.000Z"),
+            "to": valid_to.strftime("%Y-%m-%dT04:59:59.999Z"),
             "blockId": item["sku"],
             "itemId": item["id"],
             "flyerRunId": item["flyer_run_id"]
@@ -151,9 +152,12 @@ class MetroScraper(WebScraper):
 
         response = requests.post(self.METRO_OLD_PRICE_URL, json=json_params)
         if response.status_code != 200:
+            print("Bad status code")
             return 0
         else:
             old_price = self._find_old_price(item, response.text)
+            if old_price == 0:
+                print(json_params)
             return old_price
 
     def _find_old_price(self, item, text_response):
@@ -161,10 +165,12 @@ class MetroScraper(WebScraper):
         regular_price_div = soup.find(attrs={"class": "pi-regular-price"})
 
         if regular_price_div is None:
+            print("Regular price div was none")
             return 0
 
         price_txt = regular_price_div.find(attrs={"class": "pi-price"})
         if price_txt is None:
+            print("Price text was none")
             return 0
         else:
             price = self._adjust_sale_price(soup)
