@@ -42,7 +42,11 @@ def get_items_facade():
     scrapers = builders.WebScraperBuilder.build_retrievers()
 
     for scraper in scrapers:
-        items.extend(scraper.get_products())
+        try:
+            items.extend(scraper.get_products())
+        except Exception as e:
+            webapp.app.logger.error(
+                f"Error occured for {scraper.store_name}: {str(e)}")
 
     with webapp.app.app_context():
         _commit_to_db(items)
