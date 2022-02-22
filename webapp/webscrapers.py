@@ -18,6 +18,7 @@ class WebScraper(DataRetrieverInterface):
         options = webdriver.ChromeOptions()
         options.add_argument("headless")
         options.add_argument("window-size=1400,2000")
+        options.add_argument("log-level=2")
         self.driver = webdriver.Chrome(options=options)
 
 
