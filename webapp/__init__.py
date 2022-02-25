@@ -12,8 +12,9 @@ def create_app(test_config=None):
         app.config.from_object("webapp.config.ProductionConfig")
     else:
         app.config.from_object("webapp.config.DevelopmentConfig")
-        app.config["DATABASE"] = os.path.join(app.instance_path,
-                                              "webapp.sqlite")
+
+    app.config["DATABASE"] = os.path.join(app.instance_path,
+                                          "webapp.sqlite")
 
     try:
         os.makedirs(app.instance_path)
