@@ -1,5 +1,5 @@
-from flask import Flask, redirect, url_for
 import os
+from flask import Flask, redirect, url_for
 from flask_apscheduler import APScheduler
 
 

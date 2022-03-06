@@ -5,6 +5,7 @@ import json
 from .url_enum import StoreURLs
 from datetime import date, datetime, timedelta
 from seleniumwire import webdriver
+from selenium.webdriver.chrome.options import Options
 import requests
 import bs4
 from bs4 import BeautifulSoup
@@ -15,7 +16,8 @@ class WebScraper(DataRetrieverInterface):
     def __init__(self):
         # Each scraper will have its own webdriver to allow for easier
         # asynchronous scraping in the future
-        options = webdriver.ChromeOptions()
+        options = Options()
+        options.add_argument("no-sandbox")
         options.add_argument("headless")
         options.add_argument("window-size=1400,2000")
         options.add_argument("log-level=2")
@@ -155,12 +157,9 @@ class MetroScraper(WebScraper):
 
         response = requests.post(self.METRO_OLD_PRICE_URL, json=json_params)
         if response.status_code != 200:
-            print("Bad status code")
             return 0
         else:
             old_price = self._find_old_price(item, response.text)
-            if old_price == 0:
-                print(json_params)
             return old_price
 
     def _find_old_price(self, item, text_response):
@@ -168,12 +167,10 @@ class MetroScraper(WebScraper):
         regular_price_div = soup.find(attrs={"class": "pi-regular-price"})
 
         if regular_price_div is None:
-            print("Regular price div was none")
             return 0
 
         price_txt = regular_price_div.find(attrs={"class": "pi-price"})
         if price_txt is None:
-            print("Price text was none")
             return 0
         else:
             price = self._adjust_sale_price(soup)
@@ -236,10 +233,9 @@ class LoblawsScraper(WebScraper):
         time.sleep(5)
 
         self._scroll_down()
-
+        # self.driver.save_screenshot("loblaws_sc.png")
         items = self._get_required_responses()
         processed_data = self._process_items(items)
-
         self.driver.quit()
 
         return processed_data
