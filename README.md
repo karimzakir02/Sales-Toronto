@@ -22,7 +22,7 @@ At the moment, I don't have any concrete plans about the data that the webapp wi
 - Better organize the files/modules
 
 ## Future Development Plans
-- Dashboard to display analysis based on the data
-- Add more stores
+- Add a dashboard to display analysis based on the data
+- Add more supermarket chains
 - Continue developing interesting features
 - Add unit testing to the app
