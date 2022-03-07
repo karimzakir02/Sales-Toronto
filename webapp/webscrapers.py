@@ -18,6 +18,7 @@ class WebScraper(DataRetrieverInterface):
         # asynchronous scraping in the future
         options = Options()
         options.add_argument("no-sandbox")
+        options.add_argument("disable-dev-shm-usage")
         options.add_argument("headless")
         options.add_argument("window-size=1400,2000")
         options.add_argument("log-level=2")
