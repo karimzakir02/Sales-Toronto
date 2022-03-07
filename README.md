@@ -25,3 +25,4 @@ At the moment, I don't have any concrete plans about the data that the webapp wi
 - Dashboard to display analysis based on the data
 - Add more stores
 - Continue developing interesting features
+- Add unit testing to the app
