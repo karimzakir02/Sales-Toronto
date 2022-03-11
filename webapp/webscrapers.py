@@ -45,11 +45,15 @@ class FreshcoScraper(WebScraper):
         return processed_items
 
     def _item_valid(self, item):
+        # Some items don't have current price, 
+        # making them unsuitable for our database
         if item.get("current_price") is None:
             return False
         return True
 
     def _adjust_old_price(self, item):
+        # If an item misses its original price, 
+        # it's possible to obtain it as displayed here:
         if item.get("original_price") is None and \
                     item.get("dollars_off") is not None:
             item["original_price"] = float(item["current_price"]) + \
@@ -59,6 +63,7 @@ class FreshcoScraper(WebScraper):
 
     def _process_items(self, items):
         processed_data = []
+
         for item in items:
             if not self._item_valid(item):
                 continue
@@ -66,11 +71,14 @@ class FreshcoScraper(WebScraper):
                 self._adjust_old_price(item)
 
             self._modify_dates(item)
+
             link = "https://freshco.com/flyer/"
             tup = (item["name"], self.store_name, item["current_price"],
                    item["original_price"], link, "NaN", item["valid_from"],
                    item["valid_to"])
+
             processed_data.append(tup)
+    
         return processed_data
 
     def _modify_dates(self, item):
