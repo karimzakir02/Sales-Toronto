@@ -1,4 +1,4 @@
-from . import builders
+from selenium_webscrapers import Builder
 from webapp.db import get_db
 from flask.cli import with_appcontext
 import click
@@ -39,14 +39,14 @@ def _commit_to_db(items):
 def get_items_facade():
 
     items = []
-    scrapers = builders.WebScraperBuilder.build_retrievers()
+    scrapers = Builder.build_retrievers()
 
     for scraper in scrapers:
         try:
             items.extend(scraper.get_products())
         except Exception as e:
             webapp.app.logger.error(
-                f"Error occured for {scraper.store_name}: {str(e)}")
+                f"Error occured for {scraper.STORE_NAME}: {str(e)}")
 
     with webapp.app.app_context():
         _commit_to_db(items)
