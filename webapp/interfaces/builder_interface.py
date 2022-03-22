@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class RetrieverBuilder(ABC):
+class BuilderInterface(ABC):
 
     @abstractmethod
     def build_retrievers():
