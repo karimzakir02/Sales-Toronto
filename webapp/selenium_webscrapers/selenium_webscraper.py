@@ -1,4 +1,4 @@
-from webapp.data_retriever_interface import DataRetrieverInterface
+from interfaces import DataRetrieverInterface
 from selenium.webdriver.chrome.options import Options
 from seleniumwire import webdriver
 
