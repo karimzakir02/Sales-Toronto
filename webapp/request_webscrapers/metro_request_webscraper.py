@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
 
-class SimpleMetroScraper(RequestWebscraper):
+class MetroRequestWebscraper(RequestWebscraper):
 
     def __init__(self):
         super().__init__()

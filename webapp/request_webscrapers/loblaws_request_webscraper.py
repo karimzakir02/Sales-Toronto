@@ -3,7 +3,7 @@ import requests
 from datetime import datetime, date
 
 
-class SimpleLoblawsScraper(RequestWebscraper):
+class LoblawsRequestWebscraper(RequestWebscraper):
 
     def __init__(self):
         super().__init__()
