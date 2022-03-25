@@ -1,4 +1,4 @@
-from selenium_webscrapers import Builder
+from request_webscrapers import Builder
 from webapp.db import get_db
 from flask.cli import with_appcontext
 import click
