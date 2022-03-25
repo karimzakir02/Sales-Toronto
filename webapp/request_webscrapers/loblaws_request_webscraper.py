@@ -16,7 +16,6 @@ class LoblawsRequestWebscraper(RequestWebscraper):
         self.X_API_KEY = "1im1hL52q9xvta16GlSdYDsTsG0dmyhF"
 
     def get_products(self):
-
         items = self._get_items()
 
         processed_items = self._process_items(items)
@@ -68,15 +67,17 @@ class LoblawsRequestWebscraper(RequestWebscraper):
             }
         }
 
-        headers = {"x-api-key", self.X_API_KEY}
+        headers = {"x-apikey": self.X_API_KEY}
         while result_length != 0:
-            deals_response = requests.post(headers=headers, json=json_args)
+            deals_response = requests.post(self.API_URL, headers=headers,
+                                           json=json_args)
 
             if deals_response.status_code != 200:
-                return []
+                print(deals_response.status_code)
+                return items
 
             products = deals_response.json()["results"]
-            items.append(products)
+            items.extend(products)
             json_args["pagination"]["from"] += 1
             result_length = len(products)
 
