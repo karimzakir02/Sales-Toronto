@@ -34,7 +34,7 @@ class LoblawsRequestWebscraper(RequestWebscraper):
             tup = (item["name"], self.STORE_NAME,
                    item["prices"]["price"]["value"],
                    item["prices"]["wasPrice"]["value"], link,
-                   item["packageSize"], date.today().strftime("%Y-%m-%d"),
+                   item["packageSize"], date.today().strftime("%Y%m%d"),
                    expiry_date)
 
             processed_data.append(tup)
