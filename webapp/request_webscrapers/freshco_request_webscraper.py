@@ -44,7 +44,8 @@ class FreshcoRequestWebscraper(RequestWebscraper):
         if flyer_page.status_code != 200:
             return ""
 
-        access_token = re.findall('"accessToken":"([\\w]*)"')[0]
+        access_token = re.findall('"accessToken":"([\\w]*)"',
+                                  flyer_page.text)[0]
         return access_token
 
     def _get_flyer_num(self, access_token):
@@ -86,11 +87,12 @@ class FreshcoRequestWebscraper(RequestWebscraper):
 
     def _get_old_price(self, item):
         if item["original_price"] is not None:
-            return
+            item["original_price"] = round(float(item["original_price"]), 2)
 
         if item["dollars_off"] is not None:
-            item["original_price"] = item["current_price"] + \
-                                        item["dollars_off"]
+            original_price = float(item["current_price"]) + \
+                                    float(item["dollars_off"])
+            item["original_price"] = round(original_price, 2)
             return
 
         item["original_price"] = 0
