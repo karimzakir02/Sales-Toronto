@@ -1,7 +1,7 @@
 from interfaces import BuilderInterface
-from loblaws_request_webscraper import LoblawsRequestWebscraper
-from metro_request_webscraper import MetroRequestWebscraper
-from freshco_request_webscraper import FreshcoRequestWebscraper
+from .loblaws_request_webscraper import LoblawsRequestWebscraper
+from .metro_request_webscraper import MetroRequestWebscraper
+from .freshco_request_webscraper import FreshcoRequestWebscraper
 
 
 class Builder(BuilderInterface):
