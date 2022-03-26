@@ -90,8 +90,7 @@ class MetroRequestWebscraper(RequestWebscraper):
                    item["description"], item["valid_from"], item["valid_to"])
 
             processed_data.append(tup)
-        print(count)
-        print(len(processed_data))
+
         return processed_data
 
     def _item_valid(self, item):
