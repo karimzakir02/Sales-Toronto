@@ -16,11 +16,6 @@ Prior to this project, I've only read and briefly modified Flask code, but have 
 ### How is the data going to be used?
 At the moment, I don't have any concrete plans about the data that the webapp will collect over time. I am planning to create a dashboard in the webapp that will provide some summary statistics and create interesting visualizations based on the data. Additionally, I might analyze the data in more detail in a separate notebook and create more detailed visualizations. Finally, after a year, I will most-likely publish the data somewhere on Kaggle to make the data accessible to everyone. 
 
-## What is left to do before first release?
-- Ensure the Loblaws scraper works consistently during deployment
-- Improve the accuracy of old price data retrieval
-- Better organize the files/modules
-
 ## Future Development Plans
 - Add a dashboard to display analysis based on the data
 - Add more supermarket chains
