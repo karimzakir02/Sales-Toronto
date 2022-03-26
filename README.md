@@ -23,6 +23,9 @@ One of the main problems I had to solve when developing this project was that th
 
 To solve these issues, I wrote the `requests_webscrapers` package. Instead of sending GET requests to the flyer webpages, these webscrapers send GET/POST requests directly to the API that the store webpages work with and processes their responses. With this package, I pretty much removed the 'middle-men' that were the flyer pages and started directly working with the API's.
 
+### Is there any missing data?
+Unfortunately, yes. There's missing data in the `package_size` column for FreshCo items, since there's unfortunately no obvious to currently retrieve that information. This is denoted by "None" in the column. Additionally, some items from Metro and FreshCo will have missing data in their `old_price` column; it is difficult to retrieve the old price of items from those two chains, since they are not always included in the response. You can see my solution to these problems in the code. Despite these solutions, there will still be some missing data here and there, although most of the data is fully intact. 
+
 ## Future Development Plans
 - Add a dashboard to display analysis based on the data
 - Add more supermarket chains
