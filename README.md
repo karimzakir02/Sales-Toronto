@@ -1,7 +1,7 @@
 # Sales Data Engineering Project
 Welcome to my Sales Data Engineering Project! The project is currently deployed using Linode. You can find the website [here](http://172.105.19.211). I am planning to purchase a domain for the website soon.
 
-If you have any feedback, I would love to hear from you! Feel free to open a GitHub issue or messaging me on [LinkedIn](https://www.linkedin.com/in/karim-zakir-172124171/)
+If you have any feedback, I would love to hear from you! Feel free to open a GitHub issue or message me on [LinkedIn](https://www.linkedin.com/in/karim-zakir-172124171/)
 
 ## What does the website do?
 At this stage, the website scrapes data daily from three large supermarket chains in Toronto (Loblaws, FreshCo, and Metro) and retrieves information about the products that are on sale. It processes the data, saves it to a database, and then displays some of the information about the products on the front page. 
