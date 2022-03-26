@@ -19,7 +19,7 @@ class MetroRequestWebscraper(RequestWebscraper):
 
         # URL from which the sales data is obtained:
         self.API_URL = ("https://dam.flippenterprise.net/flyerkit/"
-                        "publication/{}/ products?display_type=all&"
+                        "publication/{}/products?display_type=all&"
                         "locale=en&access_token={}")
 
         # URL for the page containing an item's details
@@ -27,8 +27,8 @@ class MetroRequestWebscraper(RequestWebscraper):
                                  "getSelectedFlyerPromosDetails")
 
         # Shortened units used to find old price:
-        self.SHORTENED_UNITS = ["/kg", "/lb", "avg. ea\\.", "ea\\.",
-                                "/100g", "/100ml"]
+        self.SHORTENED_UNITS = ["kg", "lb", "avg. ea\\.",
+                                "ea\\.", "100g", "100ml"]
 
     def get_products(self):
 
@@ -48,13 +48,14 @@ class MetroRequestWebscraper(RequestWebscraper):
         if page_response.status_code != 200:
             return ("", "")
 
+        html = page_response.text
         access_token = re.findall("var flippAccessToken = \"(\\w+)\";",
-                                  page_response.text)[0]
+                                  html)[0]
 
-        flyer_num = re.findall("var publicationsWeekStatus = {\"(\\d+)\":true")
-        flyer_num = flyer_num[0]  # indexing moved to second line for pep8
+        flyer_num = re.findall("var publicationsWeekStatus = {\"(\\d+)\":true",
+                               html)[0]
 
-        return access_token, flyer_num
+        return flyer_num, access_token
 
     def _get_items(self, request_arguments):
         # Get the products from their API in JSON format
@@ -68,6 +69,7 @@ class MetroRequestWebscraper(RequestWebscraper):
     def _process_items(self, items):
         # Process the data to ensure it fits into the database's schema
         processed_data = []
+        count = 0
 
         for item in items:
             # Some 'items' are recipes and are not appropriate for our data:
@@ -80,12 +82,16 @@ class MetroRequestWebscraper(RequestWebscraper):
             item["valid_from"] = item["valid_from"].replace("-", "")
             item["valid_to"] = item["valid_to"].replace("-", "")
 
+            if item["original_price"] == 0:
+                count += 1
+
             tup = (item["name"], self.STORE_NAME, item["current_price"],
                    item["original_price"], self.FLYER_PAGE,
                    item["description"], item["valid_from"], item["valid_to"])
 
             processed_data.append(tup)
-
+        print(count)
+        print(len(processed_data))
         return processed_data
 
     def _item_valid(self, item):
@@ -103,21 +109,25 @@ class MetroRequestWebscraper(RequestWebscraper):
         page_text = self._get_page_text(item)
 
         for unit in self.SHORTENED_UNITS:
-            to_find = f"\\$[\\d]+[^\\$]*{unit}"
-            # Regex Expression without extra slashes: \$[\d]+[^\$]*{unit}
+            to_find = f"\\$([\\d]+\\.[\\d]+)[^\\$]*{unit}"
+            # Regex Expression without extra slashes:
+            # \$([\d]+\.[\d]+)[^\$]*{unit}
 
             matches = re.findall(to_find, page_text)
-            if len(matches) == 2:
-                # Two matches indicates a pair of old price and current price
-                # for the same package size
+            if len(matches) >= 2 and float(matches[0]) < float(matches[1]):
+                # The above condition indicates a pair of old price and
+                # current price for the same package size
                 found = True
+                current_price = matches[0]
+                original_price = matches[1]
                 break
 
         if not found:
+            item["original_price"] = 0
             return
 
-        item["current_price"] = float(matches[0][1:])
-        item["original_price"] = float(matches[1][1:])
+        item["current_price"] = float(current_price)
+        item["original_price"] = float(original_price)
 
     def _get_page_text(self, item):
         # Item page contains information about current and old prices
@@ -135,11 +145,11 @@ class MetroRequestWebscraper(RequestWebscraper):
             "flyerRunId": item["flyer_run_id"],
         }
 
-        item_page = requests.POST(self.ITEM_DETAILS_URL, json=json_params)
+        item_page = requests.post(self.ITEM_DETAILS_URL, json=json_params)
 
         if item_page.status_code != 200:
             return ""  # need to come up with a custom exceptions class
 
-        soup = BeautifulSoup(item_page.content)
+        soup = BeautifulSoup(item_page.content, features="html.parser")
         text = soup.get_text().replace(" ", "").replace("\n", "")
         return text
