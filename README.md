@@ -1,5 +1,5 @@
 # Sales Data Engineering Project
-Welcome to my Sales Data Engineering Project! The project is currently deployed using Linode. You can find the website [here](http://172.105.19.211). I am planning to purchase a domain for the website soon.
+Welcome to my Sales Data Engineering Project! The project is in its beta stage and is currently deployed using Linode. You can find the website [here](http://172.105.19.211). I am planning to purchase a domain for the website soon.
 
 If you have any feedback, I would love to hear from you! Feel free to open a GitHub issue or message me on [LinkedIn](https://www.linkedin.com/in/karim-zakir-172124171/)
 
@@ -8,6 +8,12 @@ At this stage, the website scrapes data daily from three large supermarket chain
 
 ## Why I built the project?
 I built this project in order to develop my data engineering and software engineering skills. I worked on my data engineering skills by writing web scraping algorithms and processing data obtained from different sources to ensure the retrieved data fit into a single database. I worked on my software engineering skills by constantly striving to follow the SOLID principles, CLEAN architecture, and ensuring that my code was readable, modifiable, and easy to build-upon. 
+
+## Future Development Plans
+- Add a dashboard to display analysis based on the data
+- Add more supermarket chains
+- Add unit testing to the app
+- Contunue adding other interesting features
 
 ## FAQ
 In this section, I will answer some questions you might have about my design choices or other code-related questions. 
@@ -24,10 +30,4 @@ One of the main problems I had to solve when developing this project was that th
 To solve these issues, I wrote the `requests_webscrapers` package. Instead of sending GET requests to the flyer webpages, these webscrapers send GET/POST requests directly to the API that the store webpages work with and processes their responses. With this package, I pretty much removed the 'middle-men' that were the flyer pages and started directly working with the API's.
 
 ### Is there any missing data?
-Unfortunately, yes. There's missing data in the `package_size` column for FreshCo items, since there's unfortunately no obvious to currently retrieve that information. This is denoted by "None" in the column. Additionally, some items from Metro and FreshCo will have missing data in their `old_price` column; it is difficult to retrieve the old price of items from those two chains, since they are not always included in the response. You can see my solution to these problems in the code. Despite these solutions, there will still be some missing data here and there, although most of the data is fully intact. 
-
-## Future Development Plans
-- Add a dashboard to display analysis based on the data
-- Add more supermarket chains
-- Add unit testing to the app
-- Contunue adding other interesting features
+Unfortunately, yes. There's missing data in the `package_size` column for FreshCo items, since there's unfortunately no obvious method to currently retrieve that information. This is denoted by "None" in the column. Additionally, some items from Metro and FreshCo will have missing data in their `old_price` column; it is difficult to retrieve the old price of items from those two chains, since they are not always included in the response. You can see my solution to these problems in the code. Despite these solutions, there will still be some missing data here and there, although most of the data is fully intact. 
