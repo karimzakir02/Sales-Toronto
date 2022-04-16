@@ -3,6 +3,7 @@ from webapp.db import get_db
 from flask.cli import with_appcontext
 import click
 import webapp
+import traceback
 
 
 @click.command("scrape-data")
@@ -46,7 +47,7 @@ def get_items_facade():
             items.extend(scraper.get_products())
         except Exception as e:
             webapp.app.logger.error(
-                f"Error occured for {scraper.STORE_NAME}: {str(e)}")
+                f"Error occured for {scraper.STORE_NAME}: {traceback.print_exc()}")
 
     with webapp.app.app_context():
         _commit_to_db(items)
