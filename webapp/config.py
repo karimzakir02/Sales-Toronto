@@ -43,3 +43,11 @@ class DevelopmentConfig(Config):
             "start_date": START_DATE,
         },
     ]
+
+
+config = {
+    "development": DevelopmentConfig,
+    "production": ProductionConfig,
+
+    "default": DevelopmentConfig
+}
